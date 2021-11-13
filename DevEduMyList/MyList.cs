@@ -3,14 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace DevEduMyList
+namespace DevEdu_MyList
 {
-    
     class MyList<T> : IList<T>
     {
-        T[] _array;
-        int _size;
-        int _capacity;
+        private T[] _array;
+        private int _size;
+        private int _capacity;
 
 
         public MyList()
@@ -18,12 +17,14 @@ namespace DevEduMyList
             _size = 0;
             _capacity = 0;
         }
-        public MyList(int capasity)
+
+        public MyList(int capacity)
         {
-            _array = new T[capasity];
+            _array = new T[capacity];
             _size = 0;
-            _capacity = capasity;
+            _capacity = capacity;
         }
+
         public MyList(T[] collection)
         {
             _array = collection[..];
@@ -35,6 +36,7 @@ namespace DevEduMyList
         public int Count => _size;
         public int Capacity => _capacity;
         public bool IsReadOnly => false;
+
         public T this[int index]
         {
             get
@@ -50,37 +52,42 @@ namespace DevEduMyList
         }
 
 
-        public void TheIndexIsCorrect(int index)
+        private void TheIndexIsCorrect(int index)
         {
             if (index < 0 || index > Count)
-                throw new IndexOutOfRangeException("Индекс выыходит за границы массива!");
+                throw new IndexOutOfRangeException("Индекс выходит за границы массива!");
         }
+
         private void TheRangeIsCorrect(int index, int count)
         {
             if (index < 0 || count < 0)
-                throw new ArgumentOutOfRangeException("Должн быть больше 0");
+                throw new ArgumentOutOfRangeException( "index/count","Должен быть больше 0");
             if (index > Count || index + count > Count)
                 throw new ArgumentException("Не должн выходить за приделы листа");
         }
+
         private void TheRangeLastIsCorrect(int index, int count)
         {
             if (index > Count || count < 0 || index - count > Count)
-                throw new ArgumentOutOfRangeException("Диапозон должен находится в пределах листа");
+                throw new ArgumentOutOfRangeException("index/count","Диапазон должен находиться в пределах листа");
         }
-        private void NotEmpty(object obj) 
+
+        private static void NotEmpty(object obj)
         {
             if (obj == null)
-                throw new ArgumentNullException("Ссылка не должна быть пустой");
+                throw new ArgumentNullException(nameof(obj),"Ссылка не должна быть пустой");
         }
+
         private void ExpansionArray()
         {
-            T[] arrTmp = new T[(int)(Capacity * 1.2) + 1];
+            T[] arrTmp = new T[(int) (Capacity * 1.2) + 1];
             for (int i = 0; i < Capacity; i++)
                 arrTmp[i] = _array[i];
 
             _capacity = arrTmp.Length;
             _array = arrTmp;
         }
+
         private void ExpansionArray(int num)
         {
             T[] arrTmp = new T[Capacity + num];
@@ -100,14 +107,17 @@ namespace DevEduMyList
             _array[_size] = item;
             _size++;
         }
+
         public void Add(params T[] item) =>
             AddRange(item);
+
         public void AddRange(T[] arr)
         {
             ExpansionArray(arr.Length);
             for (int i = 0; i < arr.Length; i++)
                 _array[_size + i] = arr[i];
         }
+
         public void AddRange(IEnumerable<T> collection)
         {
             foreach (T elem in collection)
@@ -127,17 +137,20 @@ namespace DevEduMyList
             for (int i = 0; i < Count; i++)
                 yield return _array[i];
         }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             for (int i = 0; i < Count; i++)
                 yield return _array[i];
         }
-            
-        
+
+
         public int IndexOf(T item) =>
             IndexOf(item, 0, Count);
+
         public int IndexOf(T item, int index) =>
             IndexOf(item, index, Count - index);
+
         public int IndexOf(T item, int index, int count)
         {
             TheRangeIsCorrect(index, count);
@@ -147,10 +160,13 @@ namespace DevEduMyList
 
             return -1;
         }
+
         public int LastIndexOf(T item) =>
             LastIndexOf(item, 0, Count);
+
         public int LastIndexOf(T item, int index) =>
             LastIndexOf(item, index, Count - index);
+
         public int LastIndexOf(T item, int index, int count)
         {
             TheRangeLastIsCorrect(index, count);
@@ -174,10 +190,11 @@ namespace DevEduMyList
             _array[index] = item;
             _size++;
         }
+
         public void InsertRange(int index, IEnumerable<T> collection)
         {
             if (collection == null)
-                throw new ArgumentNullException("Колекция не может быть пустой");
+                throw new ArgumentNullException(nameof(collection),"Коллекция не может быть пустой");
             foreach (T elem in collection)
                 Insert(index, elem);
         }
@@ -186,24 +203,23 @@ namespace DevEduMyList
         public bool Remove(T item)
         {
             int index = IndexOf(item);
-            if (index >= 0)
-            {
-                RemoveAt(index);
-                return true;
-            }
-            return false;
+            if (index < 0) return false;
+            RemoveAt(index);
+            return true;
         }
+
         public void RemoveAt(int index)
         {
             TheIndexIsCorrect(index);
             _size--;
             for (int i = index; i < Count; i++)
-                _array[i] = _array[i + 1];            
+                _array[i] = _array[i + 1];
         }
+
         public int RemoveAll(Predicate<T> match)
         {
             NotEmpty(match);
-            int cnt = 0; 
+            int cnt = 0;
             foreach (T elem in this)
                 if (match(elem))
                 {
@@ -213,6 +229,7 @@ namespace DevEduMyList
 
             return cnt;
         }
+
         public void RemoveRange(int index, int count)
         {
             TheRangeIsCorrect(index, count);
@@ -227,12 +244,14 @@ namespace DevEduMyList
 
         public int BinarySearch(T item) =>
             BinarySearch(0, Count, item, Comparer<T>.Default);
+
         public int BinarySearch(T item, IComparer<T> comparer) =>
             BinarySearch(0, Count, item, comparer);
+
         public int BinarySearch(int index, int count, T item, IComparer<T> comparer)
         {
             TheRangeIsCorrect(index, count);
-            if (comparer == null && !(item is IComparable<T>))
+            if (comparer == null && item is not IComparable<T>)
                 throw new InvalidOperationException("Не сравниваемый тип");
             int left = index;
             int right = index + count;
@@ -243,7 +262,7 @@ namespace DevEduMyList
                 if (comparer.Compare(item, _array[middle]) == 0)
                     return middle;
 
-                else if (comparer.Compare(item, _array[middle]) < 0)
+                if (comparer.Compare(item, _array[middle]) < 0)
                     right = middle - 1;
                 else
                     left = middle + 1;
@@ -259,20 +278,22 @@ namespace DevEduMyList
             MyList<TOutput> res = new MyList<TOutput>(Count);
             for (int i = 0; i < Count; i++)
                 res.Add(converter(_array[i]));
-            
+
             return res;
         }
 
 
         public void CopyTo(T[] array) =>
             CopyTo(0, array, 0, Count);
+
         public void CopyTo(T[] array, int arrayIndex) =>
             CopyTo(0, array, arrayIndex, Count);
+
         public void CopyTo(int index, T[] array, int arrayIndex, int count)
         {
             TheRangeIsCorrect(index, count);
             if (array == null)
-                throw new ArgumentNullException("Масив должен существовать");                        
+                throw new ArgumentNullException(nameof(array),"Массив должен существовать");
             for (int i = 0; i < count; i++)
                 array[arrayIndex + i] = _array[index + i];
         }
@@ -281,7 +302,7 @@ namespace DevEduMyList
         public MyList<T> GetRange(int index, int count)
         {
             TheRangeIsCorrect(index, count);
-            return new MyList<T>(_array[index..(index+ count)]);
+            return new MyList<T>(_array[index..(index + count)]);
         }
 
 
@@ -290,6 +311,7 @@ namespace DevEduMyList
             for (int i = 0; i < Count / 2; i++)
                 (_array[i], _array[Count - 1 - i]) = (_array[Count - 1 - i], _array[i]);
         }
+
         public void Reverse(int index, int count)
         {
             TheRangeIsCorrect(index, count);
@@ -300,6 +322,7 @@ namespace DevEduMyList
 
         public void Sort() =>
             Sort(Comparer<T>.Default);
+
         public void Sort(Comparison<T> comparison)
         {
             NotEmpty(comparison);
@@ -308,8 +331,10 @@ namespace DevEduMyList
             for (int i = 0; i < tmp.Length; i++)
                 _array[i] = tmp[i];
         }
+
         public void Sort(IComparer<T> comparer) =>
             Sort(0, Count, comparer);
+
         public void Sort(int index, int count, IComparer<T> comparer)
         {
             NotEmpty(comparer);
@@ -348,6 +373,7 @@ namespace DevEduMyList
 
             return default(T);
         }
+
         public T FindLast(Predicate<T> match)
         {
             NotEmpty(match);
@@ -357,6 +383,7 @@ namespace DevEduMyList
 
             return default(T);
         }
+
         public MyList<T> FindAll(Predicate<T> match)
         {
             NotEmpty(match);
@@ -367,10 +394,13 @@ namespace DevEduMyList
 
             return tmp;
         }
+
         public int FindIndex(Predicate<T> match) =>
             FindIndex(0, Count, match);
+
         public int FindIndex(int startIndex, Predicate<T> match) =>
             FindIndex(startIndex, Count - startIndex, match);
+
         public int FindIndex(int startIndex, int count, Predicate<T> match)
         {
             NotEmpty(match);
@@ -381,10 +411,13 @@ namespace DevEduMyList
 
             return -1;
         }
+
         public int FindLastIndex(Predicate<T> match) =>
             FindLastIndex(Count - 1, Count, match);
+
         public int FindLastIndex(int startIndex, Predicate<T> match) =>
             FindLastIndex(startIndex, startIndex, match);
+
         public int FindLastIndex(int startIndex, int count, Predicate<T> match)
         {
             NotEmpty(match);
