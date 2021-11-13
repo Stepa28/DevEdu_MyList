@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DevEduMyList
+namespace DevEdu_MyList
 {
     class Program
     {
