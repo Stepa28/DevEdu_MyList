@@ -71,7 +71,7 @@ namespace DevEdu_MyList
         }
         public void AddAfter(OneLinkedNode<T> node, T data)
         {
-            AddAfter(node,new OneLinkedNode<T>(data));
+            AddAfter(node, new OneLinkedNode<T>(data));
         }
         public void AddAfter(OneLinkedNode<T> node, OneLinkedNode<T> newNode)
         {
@@ -257,7 +257,6 @@ namespace DevEdu_MyList
                 arr[i] = current.Data;
                 current = current.Next;
             }
-
         }
 
 
